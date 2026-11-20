@@ -1,11 +1,25 @@
 function calculate(bill, tipPercent, people) {
+  const ok = n => typeof n === 'number' && isFinite(n);
+  if (!ok(bill) || bill < 0 || !ok(tipPercent) || tipPercent < 0) {
+    return { tip: 0, total: 0, perPerson: 0 };
+  }
   const tip = bill * tipPercent / 100;
   const total = bill + tip;
-  const perPerson = total / people;
+  const perPerson = ok(people) && people >= 1 ? total / Math.floor(people) : 0;
   return { tip, total, perPerson };
 }
 
-if (typeof module !== 'undefined') module.exports = { calculate };
+function validate(bill, tipPercent, people) {
+  const bad = n => !isFinite(n);
+  if (bad(bill)) return 'Enter a bill amount to get started.';
+  if (bill < 0) return 'Bill amount cannot be negative.';
+  if (bad(tipPercent)) return 'Enter a valid tip percentage.';
+  if (tipPercent < 0) return 'Tip percentage cannot be negative.';
+  if (bad(people) || people < 1) return 'Number of people must be at least 1.';
+  return '';
+}
+
+if (typeof module !== 'undefined') module.exports = { calculate, validate };
 
 if (typeof document !== 'undefined') {
   const billEl = document.getElementById('bill');
@@ -24,7 +38,10 @@ if (typeof document !== 'undefined') {
 
   function update() {
     const tipPercent = customEl.value !== '' ? parseFloat(customEl.value) : selectedTip;
-    const r = calculate(parseFloat(billEl.value), tipPercent, parseFloat(peopleEl.value));
+    const bill = parseFloat(billEl.value);
+    const people = parseFloat(peopleEl.value);
+    const r = calculate(bill, tipPercent, people);
+    document.getElementById('message').textContent = validate(bill, tipPercent, people);
     document.getElementById('tip').textContent = fmt(r.tip);
     document.getElementById('total').textContent = fmt(r.total);
     document.getElementById('per-person').textContent = fmt(r.perPerson);
