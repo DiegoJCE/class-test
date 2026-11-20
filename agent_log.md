@@ -21,3 +21,6 @@ Alternatively, populate the GH_TOKEN environment variable with a GitHub API auth
 [  2.1 min] committed: build: 1. Build the working calculator: `index.html` with a title a
 [  2.7 min] review (codex): PASS
 [  2.7 min] building: 2. Handle bad input: empty, negative, non-numeric, or zero people show a friendly message / "$0.00" instead of NaN or Infinity, and never throw; verify: clearing fields or typing -5 shows no NaN and no console errors.
+[  3.0 min] committed: build: 2. Handle bad input: empty, negative, non-numeric, or zero p
+[  3.4 min] review (codex): PASS
+[  3.4 min] writing README
