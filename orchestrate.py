@@ -53,8 +53,11 @@ def run(cmd, timeout=None):
         return 124, "TIMEOUT"
 
 def claude(prompt, model, max_turns=40):
-    return run([CLAUDE, "-p", prompt, "--model", model,
-                "--dangerously-skip-permissions", "--max-turns", str(max_turns)])
+    code, out = run([CLAUDE, "-p", prompt, "--model", model,
+                     "--dangerously-skip-permissions", "--max-turns", str(max_turns)])
+    if code != 0:
+        log(f"claude ({model}) exited {code}: {out.strip()[-500:]}")
+    return code, out
 
 def git(*a):
     return run([GIT, *a], timeout=60)
@@ -68,7 +71,7 @@ def commit(msg):
 # ---------- setup ----------
 if not (ROOT / ".git").exists():
     git("init")
-    (ROOT / ".gitignore").write_text("node_modules/\n.env\n__pycache__/\ndist/\n.venv/\n", encoding="utf-8")
+    (ROOT / ".gitignore").write_text("node_modules/\n.env\n__pycache__/\ndist/\n.venv/\nClaude outputs/\n", encoding="utf-8")
     commit("initial commit: spec")
 
 codex_ok = bool(CODEX)
@@ -83,6 +86,8 @@ claude(
     "that runs with one command. Do not write any app code yet.",
     args.planner, max_turns=10)
 commit("plan")
+if not (ROOT / "PLAN.md").exists():
+    sys.exit("Planner didn't create PLAN.md -- see the error above. Stopping.")
 
 def tasks():
     text = (ROOT / "PLAN.md").read_text(encoding="utf-8") if (ROOT / "PLAN.md").exists() else ""
